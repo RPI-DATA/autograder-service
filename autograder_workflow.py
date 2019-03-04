@@ -26,7 +26,7 @@ class AutograderData:
         self.finished = False
 
 
-class PrepareSubmissions(StepBody):
+class GetSubmissions(StepBody):
 
     def __init__(self):
         self.submissions_dir = None
@@ -43,6 +43,18 @@ class PrepareSubmissions(StepBody):
         return ExecutionResult.next()
 
 
+class PrepareSubmission(StepBody):
+
+    def __init__(self):
+        self.cwd = None
+        self.tests_dir = None
+
+    def run(self, context: StepExecutionContext) -> ExecutionResult:
+        submission_dir = context.execution_pointer.context_item
+        print(f"Preparing to grade: {submission_dir}")
+        return ExecutionResult.next()
+
+
 class Autograde(StepBody):
 
     def __init__(self):
@@ -53,7 +65,7 @@ class Autograde(StepBody):
 
     @staticmethod
     def get_submission_name(path):
-        return path[str.rfind(path, "/")+1:]
+        return path[str.rfind(path, "/") + 1:]
 
     def run(self, context: StepExecutionContext) -> ExecutionResult:
         submission = context.execution_pointer.context_item
@@ -119,17 +131,18 @@ class AutograderWorkflow(Workflow):
 
     def build(self, builder: WorkflowBuilder):
         builder \
-            .start_with(PrepareSubmissions) \
+            .start_with(GetSubmissions) \
             .input("submissions_dir", lambda data, context: data.submissions_dir) \
             .output('submissions', lambda step: step.submissions) \
             .for_each(lambda data, context: data.submissions) \
-            .do(lambda x: x.start_with(Autograde)
+            .do(lambda x: x.start_with(PrepareSubmission)
+                .then(Autograde)
                 .input("cwd", lambda data, context: data.cwd) \
                 .input("tests_dir", lambda data, context: data.tests_dir) \
                 .input("grader_image", lambda data, context: data.grader_image) \
                 .input("submission_grades", lambda data, context: data.submission_grades) \
                 .output("submission_grades", lambda step: step.submission_grades)
-                ) \
+            ) \
             .then(SaveGradesToCSV) \
             .input("grades_csv", lambda data, context: data.grades_csv) \
             .input("submission_grades", lambda data, context: data.submission_grades) \
@@ -138,7 +151,6 @@ class AutograderWorkflow(Workflow):
 
 
 def run(config):
-
     host = configure_workflow_host()
     host.register_workflow(AutograderWorkflow())
     host.start()
@@ -159,7 +171,6 @@ def run(config):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('--config', help="configuration file for assignment to autograde", default="config.ini")
     args = parser.parse_args()

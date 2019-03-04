@@ -33,6 +33,8 @@ $ python3 autograder_workflow.py --config={config-file}
 
 example output:
 ```bash
+Preparing to grade: /Users/szednik/Projects/mgmt6940/autograder-service/assignment1_submissions/student2
+Preparing to grade: /Users/szednik/Projects/mgmt6940/autograder-service/assignment1_submissions/student1
 finished grading /Users/szednik/Projects/mgmt6940/autograder-service/assignment1_submissions/student2
 finished grading /Users/szednik/Projects/mgmt6940/autograder-service/assignment1_submissions/student1
 finished writing grades CSV
