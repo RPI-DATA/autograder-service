@@ -43,7 +43,7 @@ DONE.  Press any key to exit
 
 note - for the moment you will have to press a key after the workflow prints ``DONE.  Press any key to exit`` for the process to shutdown.
 
-## Worklfow Configuration
+## Workflow Configuration
 
 The assignment submission directory, tests directory, and grade CSV filename are specified to the workflow via a config file.
 
